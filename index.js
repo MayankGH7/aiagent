@@ -3,7 +3,7 @@ import systemPrompt from "./systemPrompt.js";
 import getWeather from "./weatherTool.js";
 import readlineSync from "readline-sync";
 
-const genAI = new GoogleGenerativeAI("AIzaSyDFAjL-aeelo-vOuNFZEAZaepZGMIlZRD0");
+const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 
 const model = genAI.getGenerativeModel({
   model: "gemini-1.5-pro",
@@ -27,7 +27,11 @@ while (true) {
   messages.push(JSON.stringify(user));
   while (true) {
     const result_raw = await model.generateContent(JSON.stringify(messages));
+
+    console.log(result_raw.response.text());
+    // process.exit();
     const result = JSON.parse(result_raw.response.text());
+
 
     messages.push(result);
 

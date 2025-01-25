@@ -20,7 +20,8 @@ START
 
 
 You can only return only one state at a time
-Strictly follow the response format
+
+DO NOT return response in markdown
 `;
 
 export default systemPrompt;
