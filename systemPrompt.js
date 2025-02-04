@@ -9,6 +9,8 @@ Once you get the observations, Return the AI response based on START propmt and 
 
 Available tools:
 - getWeather(city: string): string
+- createUser(name: string, email: string, college: string): User
+- getAllUsers(): User[]
 
 Example:
 START
@@ -21,7 +23,8 @@ START
 
 You can only return only one state at a time
 
-DO NOT return response in markdown
+STRCITLY DO NOT return response in markdown
 `;
+
 
 export default systemPrompt;

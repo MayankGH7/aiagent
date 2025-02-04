@@ -1,7 +1,9 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import readlineSync from "readline-sync";
+
 import systemPrompt from "./systemPrompt.js";
 import getWeather from "./weatherTool.js";
-import readlineSync from "readline-sync";
+import {createUser, getAllUsers } from "./dbTools.js";
 
 const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 
@@ -13,39 +15,47 @@ const model = genAI.getGenerativeModel({
 
 const tools = {
   getWeather,
+  createUser,
+  getAllUsers
 };
 
 let messages = [];
 
-while (true) {
-  messages = [];
-  const input = readlineSync.question(">> ");
-  const user = {
-    type: "user",
-    text: input,
-  };
-  messages.push(JSON.stringify(user));
+async function main(){
+
   while (true) {
-    const result_raw = await model.generateContent(JSON.stringify(messages));
+    messages = [];
+    const input = readlineSync.question(">> ");
+    const user = {
+      type: "user",
+      text: input,
+    };
+    messages.push(JSON.stringify(user));
+    while (true) {
+      const result_raw = await model.generateContent(JSON.stringify(messages));
 
-    console.log(result_raw.response.text());
-    // process.exit();
-    const result = JSON.parse(result_raw.response.text());
+      console.log(result_raw.response.text());
+      const result = JSON.parse(result_raw.response.text());
 
 
-    messages.push(result);
+      messages.push(result);
 
-    if (result.type === "output") {
-      console.log(result.output);
-      break;
-    }else if (result.type === "action") {
-      const tool = tools[result.function];
-      const output = tool(result.input);
-      const observation = {
-        type: "observation",
-        text: output,
-      };
-      messages.push(observation);
+      if (result.type === "output") {
+        console.log(result.output);
+        break;
+      }else if (result.type === "action") {
+        const tool = tools[result.function];
+        const output = await tool(result.input);
+        const observation = {
+          type: "observation",
+          text: output,
+        };
+        console.log(observation)
+        messages.push(observation);
+      }
     }
   }
+
 }
+
+main();
